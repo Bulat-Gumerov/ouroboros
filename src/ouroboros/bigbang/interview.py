@@ -905,6 +905,15 @@ class InterviewEngine:
         if overflow:
             messages.append(Message(role=MessageRole.USER, content=overflow))
 
+        # Ensure there is at least one user message for first question generation.
+        # Some providers (e.g., Minimax) require at least one user message.
+        if not state.rounds and context_for_prompt:
+            user_content = context_for_prompt
+            if len(user_content) > self._MAX_USER_RESPONSE_CHARS:
+                user_content = user_content[: self._MAX_USER_RESPONSE_CHARS] + "..."
+            if not overflow:
+                messages.append(Message(role=MessageRole.USER, content=user_content))
+
         for round_data in state.rounds:
             if round_data.question == self._INITIAL_CONTEXT_SUMMARY_QUESTION:
                 continue
